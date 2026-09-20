@@ -1,9 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/auth/callback", "/methodology"];
+const PUBLIC_PATHS = ["/login", "/auth/callback"];
 
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  const isPublic = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
+  const isStatic = pathname.startsWith("/_next") || pathname.startsWith("/styleguide");
+
+  if (isPublic || isStatic) {
+    return NextResponse.next({ request });
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -31,14 +39,10 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isPublic = PUBLIC_PATHS.some((path) => request.nextUrl.pathname.startsWith(path));
-  const isStatic = request.nextUrl.pathname.startsWith("/_next") ||
-    request.nextUrl.pathname.startsWith("/styleguide");
-
-  if (!user && !isPublic && !isStatic) {
+  if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("next", request.nextUrl.pathname);
+    url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 

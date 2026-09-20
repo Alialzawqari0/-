@@ -158,7 +158,9 @@ function Sidebar({
             <SheetTitle>القائمة الجانبية</SheetTitle>
             <SheetDescription>التنقل بين المحادثات والمشاريع</SheetDescription>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <nav aria-label="القائمة الجانبية" className="flex h-full w-full flex-col">
+            {children}
+          </nav>
         </SheetContent>
       </Sheet>
     );
@@ -197,13 +199,14 @@ function Sidebar({
         )}
         {...props}
       >
-        <div
+        <nav
           data-slot="sidebar-inner"
+          aria-label="القائمة الجانبية"
           className="bg-sidebar flex h-full w-full flex-col border-sidebar-border data-[variant=floating]:rounded-xl data-[variant=floating]:border data-[variant=floating]:shadow-subtle"
           data-variant={variant}
         >
           {children}
-        </div>
+        </nav>
       </div>
     </div>
   );
